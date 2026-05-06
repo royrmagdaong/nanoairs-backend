@@ -9,6 +9,7 @@ function authenticate(req, res, next){
                 return res.status(403).json({message: "Not authorized"})
             }else{
                 res.user = decoded
+                res.user.token = token[1]
                 next()
             }
         });

@@ -28,9 +28,11 @@ mongoose.connection.on('db close', () => console.log('close'));
 // routes
 const UserRoutes = require('./routes/Users')
 const SensorRoutes = require('./routes/Sensors')
+const TokenRoutes = require('./routes/Tokens')
 
 app.use('/user', UserRoutes)
 app.use('/sensor', SensorRoutes)
+app.use('/token', TokenRoutes)
 
 app.listen(port, () => {
     console.log(`Example app, listening to port ${port}`)

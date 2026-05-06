@@ -52,11 +52,11 @@ module.exports = {
                         if(err) res.status(500).json({response: false, message: err.message})
                         else {
                             if(matched){
-                                jwt.sign({ email: user.email, role: user.role }, process.env.SECRET_KEY, { expiresIn: '1d' }, async (err, token) =>{
+                                jwt.sign({ email: user.email, role: user.role, _id: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' }, async (err, token) =>{
                                     if(err) res.status(500).json({response: false, message: err.message})
                                     if(token){
                                         return res.status(200).json({
-                                            data: { role: user.role, email: user.email, token },
+                                            data: { _id: user._id, role: user.role, email: user.email, token },
                                             response: true
                                         })
                                     }
