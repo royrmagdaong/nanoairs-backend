@@ -31,12 +31,14 @@ const SensorRoutes = require('./routes/Sensors')
 const TokenRoutes = require('./routes/Tokens')
 const LogRoutes = require('./routes/Logs')
 const MicrocontrollerRoutes = require('./routes/Microcontrollers')
+const SystemComponentRoutes = require('./routes/SystemComponents')
 
 app.use('/user', UserRoutes)
 app.use('/sensor', SensorRoutes)
 app.use('/token', TokenRoutes)
 app.use('/log', LogRoutes)
 app.use('/mcu', MicrocontrollerRoutes)
+app.use('/system-component', SystemComponentRoutes)
 
 app.listen(port, () => {
     console.log(`Example app, listening to port ${port}`)
