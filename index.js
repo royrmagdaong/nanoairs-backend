@@ -12,7 +12,7 @@ app.use(express.json())
 
 // database connection
 try {
-  mongoose.connect('mongodb://127.0.0.1:27017/nano-airs');
+  mongoose.connect(process.env.DATABASE_URL);
   console.log('db success')
 } catch (error) {
   console.log('db error', error)
