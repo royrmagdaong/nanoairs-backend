@@ -2,6 +2,10 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const logSchema = Schema({
+    user_id:{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
     actionType: String,
     description: String,
     created_at:{

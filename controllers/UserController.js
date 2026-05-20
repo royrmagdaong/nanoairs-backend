@@ -1,79 +1,127 @@
-const mongoose = require('mongoose')
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+const normalizeEmail = (email) => {
+    if (typeof email !== 'string') return ''
+    return email.trim().toLowerCase()
+}
+
+const sanitizeUser = (user) => {
+    if (!user) return null
+    const { _id, role, email, is_verified, created_at, updated_at } = user
+    return { _id, role, email, is_verified, created_at, updated_at }
+}
+
+const buildErrorResponse = (message, status = 400) => ({ status, body: { error: true, message } })
+
 module.exports = {
     getUser: async (req, res) => {
         try {
-            return res.status(200).json({ message: 'success' })
-        } catch (error) {
-            return res.status(500).json({message: 'error'})
-        }
-    },
-    createUser: async (req, res) => {
-        let saltRounds = 10
-
-        try {
-            let role = req.body.role
-            let email = req.body.email
-            let password = req.body.password
-
-            bcrypt.hash(password, saltRounds, async (err, hashedPassword) => {
-                
-                if(err) res.status(500).json({error: true, message: err.message})
-
-                let user = await new User({
-                    role: role,
-                    email: email,
-                    password: hashedPassword
-                })
-
-                await user.save().then(savedUser => {
-                    res.status(200).json({newUser: savedUser, message: 'user created'})
-                });
-            });
-
-        } catch (error) {
-            res.status(500).json({error: true, message: error.message})
-        }
-    },
-    signIn: async (req, res) => {
-        let user
-        let email = req.body.email
-        let password = req.body.password
-
-        try {
-            user = await User.findOne({email: email}).exec()
-            if(user){
-                if(user.is_verified){
-                    let hashPassword = user.password
-                    bcrypt.compare(password, hashPassword, (err, matched) => {
-                        if(err) res.status(500).json({response: false, message: err.message})
-                        else {
-                            if(matched){
-                                jwt.sign({ email: user.email, role: user.role, _id: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' }, async (err, token) =>{
-                                    if(err) res.status(500).json({response: false, message: err.message})
-                                    if(token){
-                                        return res.status(200).json({
-                                            data: { _id: user._id, role: user.role, email: user.email, token },
-                                            response: true
-                                        })
-                                    }
-                                });
-                            }else{
-                                res.status(403).json({ response: false, message: "incorrect password" })
-                            }
-                        }
-                    })
-                }else{
-                    res.status(403).json({ response: false, message: "email is not verified", user: {email: user.email, role: user.role} })
-                }
-            }else{
-                res.status(404).json({ response: false, message: "incorrect email or the email is not registered yet!" })
+            const userId = req.query.id || (req.user && req.user._id)
+            if (!userId) {
+                return res.status(400).json({ error: true, message: 'User id is required.' })
             }
+
+            const user = await User.findById(userId).select('-password -verificationCode -__v').exec()
+            if (!user) {
+                return res.status(404).json({ error: true, message: 'User not found.' })
+            }
+
+            return res.status(200).json({ error: false, data: sanitizeUser(user) })
         } catch (error) {
-            res.status(500).json({error: true, message: error.message})
+            return res.status(500).json({ error: true, message: error.message })
+        }
+    },
+
+    getUsers: async (req, res) => {
+        try {
+            const users = await User.find({ deleted_at: null })
+                .select('-password -verificationCode -__v')
+                .exec()
+
+            return res.status(200).json({ error: false, data: users.map(sanitizeUser) })
+        } catch (error) {
+            return res.status(500).json({ error: true, message: error.message })
+        }
+    },
+
+    createUser: async (req, res) => {
+        try {
+            const { role, email, password } = req.body
+            const normalizedEmail = normalizeEmail(email)
+
+            if (!role || !normalizedEmail || !password) {
+                return res.status(400).json({ error: true, message: 'role, email, and password are required.' })
+            }
+
+            if (password.length < 6) {
+                return res.status(400).json({ error: true, message: 'Password must be at least 6 characters long.' })
+            }
+
+            const existingUser = await User.findOne({ email: normalizedEmail }).exec()
+            if (existingUser) {
+                return res.status(409).json({ error: true, message: 'Email is already registered.' })
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10)
+            const user = new User({
+                role,
+                email: normalizedEmail,
+                password: hashedPassword
+            })
+
+            const savedUser = await user.save()
+            return res.status(201).json({
+                error: false,
+                data: sanitizeUser(savedUser.toObject()),
+                message: 'User created successfully.'
+            })
+        } catch (error) {
+            return res.status(500).json({ error: true, message: error.message })
+        }
+    },
+
+    signIn: async (req, res) => {
+        try {
+            const email = normalizeEmail(req.body.email)
+            const password = req.body.password
+
+            if (!email || !password) {
+                return res.status(400).json({ error: true, message: 'Email and password are required.' })
+            }
+
+            const user = await User.findOne({ email }).exec()
+            if (!user) {
+                return res.status(401).json({ error: true, message: 'Incorrect email or password.' })
+            }
+
+            if (!user.is_verified) {
+                return res.status(403).json({ error: true, message: 'Email is not verified.' })
+            }
+
+            const passwordMatches = await bcrypt.compare(password, user.password)
+            if (!passwordMatches) {
+                return res.status(401).json({ error: true, message: 'Incorrect email or password.' })
+            }
+
+            const token = jwt.sign(
+                { _id: user._id, email: user.email, role: user.role },
+                process.env.SECRET_KEY,
+                { expiresIn: '1d' }
+            )
+
+            return res.status(200).json({
+                error: false,
+                data: {
+                    _id: user._id,
+                    role: user.role,
+                    email: user.email,
+                    token
+                }
+            })
+        } catch (error) {
+            return res.status(500).json({ error: true, message: error.message })
         }
     }
 }
