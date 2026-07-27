@@ -11,21 +11,25 @@ const validateSensorPayload = (payload) => {
     if (!payload.pondNumber || typeof payload.pondNumber !== 'number') {
         return 'pondNumber is required and must be a number.'
     }
-    const sensor = payload.sensor
-    if (!sensor || !Array.isArray(sensor) || sensor.length === 0) {
-        return 'sensor is required and must be a non-empty array.'
+    if (!payload.pH || typeof payload.pH !== 'number') {
+        return 'pH is required and must be a number.'
     }
-    const invalidEntry = sensor.find((item) => !item || typeof item.sensorType !== 'string' || typeof item.reading !== 'number')
-    if (invalidEntry) {
-        return 'Each sensor entry must include sensorType (string) and reading (number).'
+    if (!payload.salinity || typeof payload.salinity !== 'number') {
+        return 'salinity is required and must be a number.'
+    }
+    if (!payload.dissolved_oxygen || typeof payload.dissolved_oxygen !== 'number') {
+        return 'dissolved oxygen is required and must be a number.'
+    }
+    if (!payload.temperature || typeof payload.temperature !== 'number') {
+        return 'temperature is required and must be a number.'
     }
     return null
 }
 
 const sanitizeSensor = (sensor) => {
     if (!sensor) return null
-    const { _id, microcontrollerID, siteName, sensor: readings, pondNumber, readingDate, created_at } = sensor
-    return { _id, microcontrollerID, siteName, sensor: readings, pondNumber, readingDate, created_at }
+    const { _id, microcontrollerID, siteName, pH, salinity, dissolved_oxygen, temperature, pondNumber, readingDate, created_at } = sensor
+    return { _id, microcontrollerID, siteName, pH, salinity, dissolved_oxygen, temperature, pondNumber, readingDate, created_at }
 }
 
 module.exports = {
@@ -100,7 +104,10 @@ module.exports = {
             const payload = {
                 microcontrollerID: req.body.microcontrollerID,
                 siteName: req.body.siteName,
-                sensor: req.body.sensor,
+                pH: req.body.pH,
+                salinity: req.body.salinity,
+                dissolved_oxygen: req.body.dissolved_oxygen,
+                temperature: req.body.temperature,
                 pondNumber: req.body.pondNumber,
                 readingDate: req.body.readingDate ? new Date(req.body.readingDate) : new Date()
             }
