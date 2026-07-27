@@ -4,7 +4,10 @@ const Schema = mongoose.Schema
 const sensorSchema = Schema({
     microcontrollerID: String,
     siteName: String,
-    sensor: [{ sensorType: String, reading: Number }],
+    pH:{ type: Number },
+    dissolved_oxygen:{ type: Number },
+    salinity:{ type: Number },
+    temperature:{ type: Number },
     pondNumber: { type: Number },
     readingDate: { type: Date },
     created_at:{
