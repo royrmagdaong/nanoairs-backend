@@ -15,21 +15,27 @@ const validateSensorPayload = (payload) => {
         return 'pH is required and must be a number.'
     }
     if (!payload.salinity || typeof payload.salinity !== 'number') {
-        return 'salinity is required and must be a number.'
+        return 'Salinity is required and must be a number.'
     }
     if (!payload.dissolved_oxygen || typeof payload.dissolved_oxygen !== 'number') {
-        return 'dissolved oxygen is required and must be a number.'
+        return 'Dissolved oxygen is required and must be a number.'
     }
     if (!payload.temperature || typeof payload.temperature !== 'number') {
-        return 'temperature is required and must be a number.'
+        return 'Temperature is required and must be a number.'
+    }
+    if (!payload.alkalinity || typeof payload.alkalinity !== 'number') {
+        return 'Alkalinity is required and must be a number.'
+    }
+    if (!payload.co2 || typeof payload.co2 !== 'number') {
+        return 'CO2 is required and must be a number.'
     }
     return null
 }
 
 const sanitizeSensor = (sensor) => {
     if (!sensor) return null
-    const { _id, microcontrollerID, siteName, pH, salinity, dissolved_oxygen, temperature, pondNumber, readingDate, created_at } = sensor
-    return { _id, microcontrollerID, siteName, pH, salinity, dissolved_oxygen, temperature, pondNumber, readingDate, created_at }
+    const { _id, microcontrollerID, siteName, pH, salinity, dissolved_oxygen, temperature, alkalinity, co2, pondNumber, readingDate, created_at } = sensor
+    return { _id, microcontrollerID, siteName, pH, salinity, dissolved_oxygen, temperature, alkalinity, co2, pondNumber, readingDate, created_at }
 }
 
 module.exports = {
@@ -108,6 +114,8 @@ module.exports = {
                 salinity: req.body.salinity,
                 dissolved_oxygen: req.body.dissolved_oxygen,
                 temperature: req.body.temperature,
+                alkalinity: req.body.alkalinity,
+                co2: req.body.co2,
                 pondNumber: req.body.pondNumber,
                 readingDate: req.body.readingDate ? new Date(req.body.readingDate) : new Date()
             }
