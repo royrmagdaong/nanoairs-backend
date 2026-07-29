@@ -8,6 +8,8 @@ const sensorSchema = Schema({
     dissolved_oxygen:{ type: Number },
     salinity:{ type: Number },
     temperature:{ type: Number },
+    alkalinity:{ type: Number },
+    co2:{ type: Number },
     pondNumber: { type: Number },
     readingDate: { type: Date },
     created_at:{
