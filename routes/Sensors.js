@@ -8,12 +8,12 @@ const authorization = require('../middlewares/authorization')
 // routes
 router.get('/', 
     authenticate,
-    authorization(['user'], ['admin']),
+    authorization(['user', 'admin']),
     SensorController.getSensor
 )
 router.post('/insert', 
     authenticate,
-    authorization(['user'], ['admin']),
+    authorization(['user', 'admin']),
     SensorController.insertSensorReading
 )
 
