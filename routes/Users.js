@@ -13,14 +13,14 @@ router.get('/',
     UserController.getUser
 )
 router.post('/create', 
-    // authenticate,
-    // authorization(['admin','user']),
+    authenticate,
+    authorization(['admin']),
     UserController.createUser
 )
 router.post('/sign-in', UserController.signIn)
 router.post('/sign-in-mcu', 
     authenticate,
-    authorization(['admin','user']),
+    authorization(['admin']),
     UserController.signInMCU
 )
 
