@@ -1,3 +1,4 @@
+const axios = require("axios");
 const Sensor = require('../models/sensor')
 
 const validateSensorPayload = (payload) => {
@@ -135,6 +136,21 @@ module.exports = {
                 error: false,
                 data: sanitizeSensor(savedSensor.toObject()),
                 message: 'Sensor reading recorded successfully.'
+            })
+        } catch (error) {
+            return res.status(500).json({ error: true, message: error.message })
+        }
+    },
+    getTimestamp: async (req, res) => {
+        try {
+            const phTime = new Date().toLocaleString("en-PH", {
+                timeZone: "Asia/Manila"
+            });
+
+            return res.status(200).json({
+                error: false,
+                dateTime: phTime,
+                timestamp: Date.now()
             })
         } catch (error) {
             return res.status(500).json({ error: true, message: error.message })
