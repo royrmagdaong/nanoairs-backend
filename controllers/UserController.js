@@ -155,9 +155,6 @@ module.exports = {
             return res.status(200).json({
                 error: false,
                 data: {
-                    _id: user._id,
-                    role: user.role,
-                    email: user.email,
                     token
                 }
             })
