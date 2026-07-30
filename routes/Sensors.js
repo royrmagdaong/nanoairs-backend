@@ -11,6 +11,11 @@ router.get('/',
     authorization(['user', 'admin']),
     SensorController.getSensor
 )
+router.get('/get-timestamp', 
+    authenticate,
+    authorization(['user', 'admin']),
+    SensorController.getTimestamp
+)
 router.post('/insert', 
     authenticate,
     authorization(['user', 'admin']),
