@@ -125,6 +125,9 @@ module.exports = {
                 return res.status(400).json({ error: true, message: validationError })
             }
 
+            // catch error here when saving records fails
+            // log all errors, create error model to log all sensor errors
+
             const sensor = new Sensor(payload)
             const savedSensor = await sensor.save()
 
