@@ -59,12 +59,12 @@ module.exports = {
                 query.microcontrollerID = microcontrollerID
             }
 
-            const sensors = await Sensor.find(query)
+            const sensor = await Sensor.findOne(query)
                 .select('-__v')
                 .sort({ created_at: -1 })
                 .exec()
 
-            return res.status(200).json({ error: false, data: sensors.map(sanitizeSensor) })
+            return res.status(200).json({ error: false, data: sensor })
         } catch (error) {
             return res.status(500).json({ error: true, message: error.message })
         }

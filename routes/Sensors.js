@@ -7,9 +7,14 @@ const authorization = require('../middlewares/authorization')
 
 // routes
 router.get('/', 
+    // authenticate,
+    // authorization(['user', 'admin']),
+    SensorController.getSensor
+)
+router.get('/get-all', 
     authenticate,
     authorization(['user', 'admin']),
-    SensorController.getSensor
+    SensorController.getSensors
 )
 router.get('/get-timestamp', 
     authenticate,
