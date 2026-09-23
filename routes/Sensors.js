@@ -11,9 +11,7 @@ router.get('/',
     // authorization(['user', 'admin']),
     SensorController.getSensor
 )
-router.get('/get-all', 
-    authenticate,
-    authorization(['user', 'admin']),
+router.get('/sensors', 
     SensorController.getSensors
 )
 router.get('/get-timestamp', 
@@ -25,6 +23,9 @@ router.post('/insert',
     authenticate,
     authorization(['user', 'admin']),
     SensorController.insertSensorReading
+)
+router.get('/count',
+    SensorController.getSensorReadingsCount
 )
 
 module.exports = router

@@ -77,7 +77,7 @@ module.exports = {
     },
     getSensors: async (req, res) => {
         try {
-            const { siteName, pondNumber, limit = 100, skip = 0 } = req.query
+            const { siteName, pondNumber, limit = 100, skip = 0, sort = 'asc' } = req.query
             const query = { deleted_at: null }
 
             if (siteName) {
@@ -88,9 +88,13 @@ module.exports = {
                 query.pondNumber = Number(pondNumber)
             }
 
+            let sortType = 'asc'
+            if(sort === 'asc') sortType = -1
+            else sortType = 1
+
             const sensors = await Sensor.find(query)
                 .select('-__v')
-                .sort({ created_at: -1 })
+                .sort({ created_at: sortType })
                 .limit(Number(limit))
                 .skip(Number(skip))
                 .exec()
@@ -151,6 +155,19 @@ module.exports = {
                 error: false,
                 dateTime: phTime,
                 timestamp: Date.now()
+            })
+        } catch (error) {
+            return res.status(500).json({ error: true, message: error.message })
+        }
+    },
+    getSensorReadingsCount: async (req, res) => {
+        try {
+            const sensor = await Sensor.countDocuments()
+                .exec()
+
+            return res.status(200).json({
+                error: false,
+                sensor: sensor,
             })
         } catch (error) {
             return res.status(500).json({ error: true, message: error.message })
