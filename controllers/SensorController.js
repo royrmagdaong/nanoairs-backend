@@ -42,8 +42,15 @@ const sanitizeSensor = (sensor) => {
 module.exports = {
     getSensor: async (req, res) => {
         try {
-            const { id, microcontrollerID } = req.query
+            const { id, microcontrollerID, siteName, pondNumber } = req.query
             const query = { deleted_at: null }
+             if (siteName) {
+                query.siteName = siteName
+            }
+
+            if (pondNumber) {
+                query.pondNumber = Number(pondNumber)
+            }
 
             if (id) {
                 const sensor = await Sensor.findOne({ _id: id, deleted_at: null })
